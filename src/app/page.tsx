@@ -1,65 +1,88 @@
-import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-white">
+      {/* Hero */}
+      <section className="max-w-4xl mx-auto px-6 py-24 text-center">
+        <div className="inline-flex items-center gap-2 bg-amber-50 text-amber-700 rounded-full px-4 py-1.5 text-sm font-medium mb-8">
+          <span className="w-2 h-2 rounded-full bg-amber-400" />
+          NFC Discount Platform
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        <h1 className="text-5xl sm:text-6xl font-black text-gray-900 tracking-tight leading-tight">
+          Sconti digitali
+          <br />
+          <span className="text-amber-500">con un tocco</span>
+        </h1>
+
+        <p className="mt-6 text-lg text-gray-500 max-w-xl mx-auto leading-relaxed">
+          Trasforma un semplice portachiavi NFC in una tessera sconto digitale.
+          I tuoi clienti avvicinano il telefono e vedono subito la promozione
+          attiva.
+        </p>
+
+        <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
+          <Link
+            href="/promo/demo-abc123"
+            className="px-8 py-3.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition shadow-lg shadow-gray-900/10"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            Vedi demo cliente
+          </Link>
+          <Link
+            href="/admin"
+            className="px-8 py-3.5 bg-white text-gray-700 border border-gray-300 rounded-xl text-sm font-semibold hover:bg-gray-50 transition"
           >
-            Documentation
-          </a>
+            Accedi alla dashboard
+          </Link>
         </div>
-      </main>
+      </section>
+
+      {/* Features */}
+      <section className="max-w-4xl mx-auto px-6 pb-24">
+        <div className="grid sm:grid-cols-3 gap-6">
+          <FeatureCard
+            icon="📱"
+            title="Zero app da scaricare"
+            desc="Il cliente avvicina il telefono al portachiavi NFC e vede subito lo sconto. Nessun login, nessuna app."
+          />
+          <FeatureCard
+            icon="⚡"
+            title="Aggiornamento in tempo reale"
+            desc="Cambi lo sconto dalla dashboard e il cliente vede subito la nuova promozione al prossimo tap."
+          />
+          <FeatureCard
+            icon="🎯"
+            title="Semplice da gestire"
+            desc="Dashboard intuitiva per modificare sconti, validità e messaggi personalizzati per i tuoi clienti."
+          />
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-100 py-8 text-center">
+        <p className="text-sm text-gray-400">
+          NFC Discount &mdash; Digital pass per attività commerciali
+        </p>
+      </footer>
+    </main>
+  );
+}
+
+function FeatureCard({
+  icon,
+  title,
+  desc,
+}: {
+  icon: string;
+  title: string;
+  desc: string;
+}) {
+  return (
+    <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+      <div className="text-3xl mb-3">{icon}</div>
+      <h3 className="font-semibold text-gray-900 mb-2">{title}</h3>
+      <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
     </div>
   );
 }

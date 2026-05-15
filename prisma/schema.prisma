@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Business {
+  id          String   @id @default(uuid())
+  name        String
+  logo        String?
+  token       String   @unique
+  discount    Int      @default(0)
+  description String   @default("")
+  message     String   @default("")
+  active      Boolean  @default(true)
+  validUntil  String?
+  cumulative  Boolean  @default(false)
+  email       String   @unique
+  password    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  history     DiscountHistory[]
+}
+
+model DiscountHistory {
+  id          String   @id @default(uuid())
+  businessId  String
+  discount    Int
+  description String
+  active      Boolean
+  cumulative  Boolean
+  validUntil  String?
+  changedAt   DateTime @default(now())
+  business    Business @relation(fields: [businessId], references: [id])
+}
