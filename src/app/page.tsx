@@ -35,6 +35,12 @@ export default function Home() {
           >
             Accedi alla dashboard
           </Link>
+          <Link
+            href="/admin/register"
+            className="px-8 py-3.5 bg-amber-500 text-white rounded-xl text-sm font-semibold hover:bg-amber-600 transition shadow-lg shadow-amber-500/10"
+          >
+            Registra la tua attività
+          </Link>
         </div>
       </section>
 
