@@ -21,6 +21,15 @@ export default async function PromoPage({
       active: true,
       validUntil: true,
       cumulative: true,
+      primaryColor: true,
+      secondaryColor: true,
+      coverImage: true,
+      welcomeMessage: true,
+      phone: true,
+      googleMaps: true,
+      instagram: true,
+      whatsapp: true,
+      website: true,
     },
   });
 
@@ -28,10 +37,35 @@ export default async function PromoPage({
     notFound();
   }
 
+  const now = new Date();
+  const campaigns = await prisma.campaign.findMany({
+    where: {
+      business: { token },
+      active: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const serializedCampaigns = campaigns.map((c) => ({
+    id: c.id,
+    title: c.title,
+    discount: c.discount,
+    description: c.description,
+    promoCode: c.promoCode,
+    color: c.color,
+    active: c.active,
+    startDate: c.startDate.toISOString(),
+    endDate: c.endDate?.toISOString() || null,
+  }));
+
   return (
     <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <TrackView token={token} />
-      <PromoCard business={business} />
+      <PromoCard
+        business={business}
+        campaigns={serializedCampaigns}
+        token={token}
+      />
     </main>
   );
 }

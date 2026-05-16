@@ -3,6 +3,7 @@
 import { useState, useEffect, createContext, useContext } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 type AuthContextType = {
   token: string | null;
@@ -120,47 +121,59 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 
   const navItems = [
     { href: "/admin", label: "Dashboard", icon: "📊" },
+    { href: "/admin/campaigns", label: "Campagne", icon: "📣" },
     { href: "/admin/discounts", label: "Sconti", icon: "🏷️" },
+    { href: "/admin/branding", label: "Branding", icon: "🎨" },
+    { href: "/admin/tags", label: "Tag NFC", icon: "📡" },
     { href: "/admin/preview", label: "Anteprima", icon: "👁️" },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/admin" className="font-bold text-gray-900">
+            <Link href="/admin" className="font-bold text-gray-900 dark:text-white">
               NFC Discount
             </Link>
             <span className="text-sm text-gray-400 hidden sm:inline">
               {businessName}
             </span>
           </div>
-          <button
-            onClick={logout}
-            className="text-sm text-gray-500 hover:text-gray-700 transition"
-          >
-            Esci
-          </button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <button
+              onClick={logout}
+              className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition"
+            >
+              Esci
+            </button>
+          </div>
         </div>
       </header>
 
-      <nav className="bg-white border-b border-gray-100">
+      <nav className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 overflow-x-auto">
         <div className="max-w-5xl mx-auto px-4 flex gap-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition ${
-                pathname === item.href
-                  ? "border-amber-500 text-gray-900"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              <span className="mr-1.5">{item.icon}</span>
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const isActive =
+              item.href === "/admin"
+                ? pathname === "/admin"
+                : pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`px-3 sm:px-4 py-3 text-sm font-medium border-b-2 transition whitespace-nowrap ${
+                  isActive
+                    ? "border-amber-500 text-gray-900 dark:text-white"
+                    : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                }`}
+              >
+                <span className="mr-1.5">{item.icon}</span>
+                {item.label}
+              </Link>
+            );
+          })}
         </div>
       </nav>
 

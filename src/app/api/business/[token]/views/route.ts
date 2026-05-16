@@ -41,28 +41,40 @@ export async function GET(
   startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1);
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const [total, today, week, month, last30Days] = await Promise.all([
-    prisma.pageView.count({
-      where: { businessId: business.id },
-    }),
-    prisma.pageView.count({
-      where: { businessId: business.id, viewedAt: { gte: startOfToday } },
-    }),
-    prisma.pageView.count({
-      where: { businessId: business.id, viewedAt: { gte: startOfWeek } },
-    }),
-    prisma.pageView.count({
-      where: { businessId: business.id, viewedAt: { gte: startOfMonth } },
-    }),
-    prisma.pageView.groupBy({
-      by: ["viewedAt"],
-      where: {
-        businessId: business.id,
-        viewedAt: { gte: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000) },
-      },
-      _count: true,
-    }),
-  ]);
+  const [total, today, week, month, lastTap, usageCount, activeCampaigns, last30Days] =
+    await Promise.all([
+      prisma.pageView.count({
+        where: { businessId: business.id },
+      }),
+      prisma.pageView.count({
+        where: { businessId: business.id, viewedAt: { gte: startOfToday } },
+      }),
+      prisma.pageView.count({
+        where: { businessId: business.id, viewedAt: { gte: startOfWeek } },
+      }),
+      prisma.pageView.count({
+        where: { businessId: business.id, viewedAt: { gte: startOfMonth } },
+      }),
+      prisma.pageView.findFirst({
+        where: { businessId: business.id },
+        orderBy: { viewedAt: "desc" },
+        select: { viewedAt: true },
+      }),
+      prisma.discountUsage.count({
+        where: { businessId: business.id },
+      }),
+      prisma.campaign.count({
+        where: { businessId: business.id, active: true },
+      }),
+      prisma.pageView.groupBy({
+        by: ["viewedAt"],
+        where: {
+          businessId: business.id,
+          viewedAt: { gte: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000) },
+        },
+        _count: true,
+      }),
+    ]);
 
   const dailyCounts: Record<string, number> = {};
   for (let i = 29; i >= 0; i--) {
@@ -82,5 +94,14 @@ export async function GET(
     count,
   }));
 
-  return NextResponse.json({ total, today, week, month, chart });
+  return NextResponse.json({
+    total,
+    today,
+    week,
+    month,
+    lastTap: lastTap?.viewedAt || null,
+    usageCount,
+    activeCampaigns,
+    chart,
+  });
 }

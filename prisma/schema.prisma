@@ -9,22 +9,37 @@ datasource db {
 }
 
 model Business {
-  id          String   @id @default(uuid())
-  name        String
-  logo        String?
-  token       String   @unique
-  discount    Int      @default(0)
-  description String   @default("")
-  message     String   @default("")
-  active      Boolean  @default(true)
-  validUntil  String?
-  cumulative  Boolean  @default(false)
-  email       String   @unique
-  password    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  history     DiscountHistory[]
-  pageViews   PageView[]
+  id             String   @id @default(uuid())
+  name           String
+  logo           String?
+  token          String   @unique
+  discount       Int      @default(0)
+  description    String   @default("")
+  message        String   @default("")
+  active         Boolean  @default(true)
+  validUntil     String?
+  cumulative     Boolean  @default(false)
+  email          String   @unique
+  password       String
+  // Branding
+  primaryColor   String   @default("#f59e0b")
+  secondaryColor String   @default("#111827")
+  coverImage     String?
+  welcomeMessage String   @default("")
+  // Business buttons
+  phone          String?
+  googleMaps     String?
+  instagram      String?
+  whatsapp       String?
+  website        String?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  history        DiscountHistory[]
+  pageViews      PageView[]
+  campaigns      Campaign[]
+  nfcTags        NFCTag[]
+  discountUsages DiscountUsage[]
 }
 
 model DiscountHistory {
@@ -47,4 +62,47 @@ model PageView {
   business   Business @relation(fields: [businessId], references: [id])
 
   @@index([businessId, viewedAt])
+}
+
+model Campaign {
+  id          String   @id @default(uuid())
+  businessId  String
+  title       String
+  discount    Int
+  description String   @default("")
+  promoCode   String   @default("")
+  color       String   @default("#f59e0b")
+  active      Boolean  @default(true)
+  startDate   DateTime @default(now())
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  business    Business @relation(fields: [businessId], references: [id])
+  usages      DiscountUsage[]
+
+  @@index([businessId, active])
+}
+
+model NFCTag {
+  id         String   @id @default(uuid())
+  businessId String
+  label      String   @default("")
+  active     Boolean  @default(true)
+  scans      Int      @default(0)
+  lastUsed   DateTime?
+  createdAt  DateTime @default(now())
+  business   Business @relation(fields: [businessId], references: [id])
+
+  @@index([businessId])
+}
+
+model DiscountUsage {
+  id         String   @id @default(uuid())
+  businessId String
+  campaignId String?
+  usedAt     DateTime @default(now())
+  business   Business @relation(fields: [businessId], references: [id])
+  campaign   Campaign? @relation(fields: [campaignId], references: [id])
+
+  @@index([businessId, usedAt])
 }

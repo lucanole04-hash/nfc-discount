@@ -2,18 +2,24 @@
 
 import { useAuth } from "../layout";
 import { useEffect, useState } from "react";
-import { PromoCard, type PromoBusinessData } from "@/components/PromoCard";
+import { PromoCard, type PromoBusinessData, type PromoCampaign } from "@/components/PromoCard";
 
 export default function PreviewPage() {
   const { token } = useAuth();
   const [data, setData] = useState<PromoBusinessData | null>(null);
+  const [campaigns, setCampaigns] = useState<PromoCampaign[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!token) return;
-    fetch(`/api/business/${token}`)
-      .then((r) => r.json())
-      .then(setData)
+    Promise.all([
+      fetch(`/api/business/${token}`).then((r) => r.json()),
+      fetch(`/api/business/${token}/campaigns`).then((r) => r.json()),
+    ])
+      .then(([biz, camps]) => {
+        setData(biz);
+        setCampaigns(camps);
+      })
       .finally(() => setLoading(false));
   }, [token]);
 
@@ -51,7 +57,7 @@ export default function PreviewPage() {
             </div>
           </div>
           <div className="bg-gray-50 rounded-b-2xl p-4 border border-t-0 border-gray-200">
-            <PromoCard business={data} />
+            <PromoCard business={data} campaigns={campaigns} token={token || undefined} />
           </div>
         </div>
       </div>
