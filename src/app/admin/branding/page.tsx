@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "../layout";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import toast from "react-hot-toast";
 
 type BrandingData = {
@@ -16,6 +16,101 @@ type BrandingData = {
   whatsapp: string | null;
   website: string | null;
 };
+
+function ImageUpload({
+  label,
+  value,
+  onChange,
+  shape = "square",
+}: {
+  label: string;
+  value: string | null;
+  onChange: (val: string | null) => void;
+  shape?: "circle" | "square" | "wide";
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Immagine troppo grande (max 2MB)");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      onChange(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  const sizeClasses =
+    shape === "circle"
+      ? "w-28 h-28 rounded-full"
+      : shape === "wide"
+        ? "w-full h-36 rounded-xl"
+        : "w-28 h-28 rounded-xl";
+
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        {label}
+      </label>
+      <div className="flex items-start gap-4">
+        <div
+          className={`relative ${sizeClasses} border-2 border-dashed border-gray-300 overflow-hidden cursor-pointer hover:border-amber-400 transition group bg-gray-50`}
+          onClick={() => inputRef.current?.click()}
+        >
+          {value ? (
+            <>
+              <img
+                src={value}
+                alt=""
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                <span className="text-white text-xs font-medium">Cambia</span>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full text-gray-400">
+              <span className="text-2xl mb-1">📷</span>
+              <span className="text-[10px]">Carica</span>
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col gap-2 pt-1">
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition"
+          >
+            Carica immagine
+          </button>
+          {value && (
+            <button
+              type="button"
+              onClick={() => onChange(null)}
+              className="px-3 py-1.5 text-red-500 text-xs font-medium hover:bg-red-50 rounded-lg transition"
+            >
+              Rimuovi
+            </button>
+          )}
+          <span className="text-[10px] text-gray-400">PNG, JPG — max 2MB</span>
+        </div>
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        onChange={handleFile}
+        className="hidden"
+      />
+    </div>
+  );
+}
 
 export default function BrandingPage() {
   const { token } = useAuth();
@@ -77,6 +172,67 @@ export default function BrandingPage() {
       </div>
 
       <form onSubmit={handleSave} className="space-y-6">
+        {/* Images */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-6">
+          <h2 className="font-semibold text-gray-900">Immagine profilo e copertina</h2>
+
+          <div className="grid sm:grid-cols-2 gap-6">
+            <ImageUpload
+              label="Logo / Immagine profilo"
+              value={form.logo}
+              onChange={(val) => setForm({ ...form, logo: val })}
+              shape="circle"
+            />
+            <ImageUpload
+              label="Immagine copertina"
+              value={form.coverImage}
+              onChange={(val) => setForm({ ...form, coverImage: val })}
+              shape="wide"
+            />
+          </div>
+
+          {/* Live mini preview */}
+          {(form.logo || form.coverImage) && (
+            <div className="mt-4">
+              <p className="text-xs text-gray-400 mb-2">Anteprima</p>
+              <div className="w-full max-w-xs mx-auto rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
+                {form.coverImage && (
+                  <div className="h-20 overflow-hidden">
+                    <img
+                      src={form.coverImage}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div
+                  className="px-4 py-5 text-center"
+                  style={{
+                    background: `linear-gradient(135deg, ${form.secondaryColor}, ${form.secondaryColor}dd)`,
+                    marginTop: form.coverImage ? 0 : undefined,
+                  }}
+                >
+                  {form.logo ? (
+                    <img
+                      src={form.logo}
+                      alt=""
+                      className="w-12 h-12 rounded-full mx-auto mb-2 object-cover border-2 border-white/20"
+                    />
+                  ) : (
+                    <div
+                      className="w-12 h-12 rounded-full mx-auto mb-2 flex items-center justify-center text-white text-lg font-bold"
+                      style={{ backgroundColor: form.primaryColor }}
+                    >
+                      ?
+                    </div>
+                  )}
+                  <p className="text-white text-sm font-semibold">La Tua Attività</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Colors */}
         <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
           <h2 className="font-semibold text-gray-900">Colori</h2>
@@ -103,6 +259,9 @@ export default function BrandingPage() {
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
                 />
               </div>
+              <p className="text-[10px] text-gray-400 mt-1">
+                Usato per accenti, pulsanti e badge
+              </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -126,10 +285,12 @@ export default function BrandingPage() {
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
                 />
               </div>
+              <p className="text-[10px] text-gray-400 mt-1">
+                Usato per header e sfondo della pagina cliente
+              </p>
             </div>
           </div>
 
-          {/* Preview */}
           <div className="flex items-center gap-2 mt-2">
             <div
               className="w-16 h-8 rounded-lg border"
@@ -143,37 +304,9 @@ export default function BrandingPage() {
           </div>
         </div>
 
-        {/* Images */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
-          <h2 className="font-semibold text-gray-900">Immagini</h2>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              URL Logo
-            </label>
-            <input
-              type="url"
-              value={form.logo || ""}
-              onChange={(e) =>
-                setForm({ ...form, logo: e.target.value || null })
-              }
-              placeholder="https://example.com/logo.png"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              URL Immagine copertina
-            </label>
-            <input
-              type="url"
-              value={form.coverImage || ""}
-              onChange={(e) =>
-                setForm({ ...form, coverImage: e.target.value || null })
-              }
-              placeholder="https://example.com/cover.jpg"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
-            />
-          </div>
+        {/* Welcome message */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
+          <h2 className="font-semibold text-gray-900">Messaggio</h2>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Messaggio di benvenuto
@@ -187,6 +320,9 @@ export default function BrandingPage() {
               placeholder="es. Benvenuto nel nostro negozio!"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none resize-none"
             />
+            <p className="text-[10px] text-gray-400 mt-1">
+              Visibile sotto il nome dell&apos;attività nella pagina cliente
+            </p>
           </div>
         </div>
 
