@@ -235,13 +235,13 @@ export default function AdminDashboard() {
                     color: "#fff",
                     fontSize: "12px",
                   }}
-                  labelFormatter={(d: string) =>
-                    new Date(d).toLocaleDateString("it-IT", {
+                  labelFormatter={(d) =>
+                    new Date(String(d)).toLocaleDateString("it-IT", {
                       day: "2-digit",
                       month: "long",
                     })
                   }
-                  formatter={(value: number) => [value, "Visite"]}
+                  formatter={(value) => [value, "Visite"]}
                 />
                 <Area
                   type="monotone"
