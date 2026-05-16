@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { PromoCard } from "@/components/PromoCard";
+import { TrackView } from "@/components/TrackView";
 
 export default async function PromoPage({
   params,
@@ -29,6 +30,7 @@ export default async function PromoPage({
 
   return (
     <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <TrackView token={token} />
       <PromoCard business={business} />
     </main>
   );

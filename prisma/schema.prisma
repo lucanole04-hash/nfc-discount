@@ -24,6 +24,7 @@ model Business {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   history     DiscountHistory[]
+  pageViews   PageView[]
 }
 
 model DiscountHistory {
@@ -36,4 +37,14 @@ model DiscountHistory {
   validUntil  String?
   changedAt   DateTime @default(now())
   business    Business @relation(fields: [businessId], references: [id])
+}
+
+model PageView {
+  id         String   @id @default(uuid())
+  businessId String
+  viewedAt   DateTime @default(now())
+  userAgent  String?
+  business   Business @relation(fields: [businessId], references: [id])
+
+  @@index([businessId, viewedAt])
 }

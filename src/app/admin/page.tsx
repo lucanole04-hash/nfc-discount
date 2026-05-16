@@ -14,16 +14,30 @@ type BusinessData = {
   token: string;
 };
 
+type ViewsData = {
+  total: number;
+  today: number;
+  week: number;
+  month: number;
+  chart: { date: string; count: number }[];
+};
+
 export default function AdminDashboard() {
   const { token } = useAuth();
   const [data, setData] = useState<BusinessData | null>(null);
+  const [views, setViews] = useState<ViewsData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!token) return;
-    fetch(`/api/business/${token}`)
-      .then((r) => r.json())
-      .then(setData)
+    Promise.all([
+      fetch(`/api/business/${token}`).then((r) => r.json()),
+      fetch(`/api/business/${token}/views`).then((r) => r.json()),
+    ])
+      .then(([biz, v]) => {
+        setData(biz);
+        setViews(v);
+      })
       .finally(() => setLoading(false));
   }, [token]);
 
@@ -62,6 +76,29 @@ export default function AdminDashboard() {
           value={data.cumulative ? "Sì" : "No"}
         />
       </div>
+
+      {/* Analytics */}
+      {views && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Scansioni NFC
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-4">
+            <ViewStatCard label="Oggi" value={views.today} />
+            <ViewStatCard label="Questa settimana" value={views.week} />
+            <ViewStatCard label="Questo mese" value={views.month} />
+            <ViewStatCard label="Totali" value={views.total} highlight />
+          </div>
+
+          {/* Chart */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+            <h3 className="text-sm font-medium text-gray-500 mb-4">
+              Ultimi 30 giorni
+            </h3>
+            <MiniChart data={views.chart} />
+          </div>
+        </div>
+      )}
 
       <div className="bg-white rounded-2xl border border-gray-200 p-6">
         <h2 className="font-semibold text-gray-900 mb-3">Link NFC</h2>
@@ -135,6 +172,77 @@ function StatCard({
           {value}
         </p>
       </div>
+    </div>
+  );
+}
+
+function ViewStatCard({
+  label,
+  value,
+  highlight,
+}: {
+  label: string;
+  value: number;
+  highlight?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-2xl border p-5 ${
+        highlight
+          ? "bg-gray-900 border-gray-900"
+          : "bg-white border-gray-200"
+      }`}
+    >
+      <p
+        className={`text-sm mb-1 ${
+          highlight ? "text-gray-400" : "text-gray-500"
+        }`}
+      >
+        {label}
+      </p>
+      <p
+        className={`text-2xl font-bold ${
+          highlight ? "text-white" : "text-gray-900"
+        }`}
+      >
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function MiniChart({ data }: { data: { date: string; count: number }[] }) {
+  const max = Math.max(...data.map((d) => d.count), 1);
+
+  return (
+    <div className="flex items-end gap-[3px] h-32">
+      {data.map((d) => {
+        const height = Math.max((d.count / max) * 100, 2);
+        const dateObj = new Date(d.date);
+        const isToday =
+          dateObj.toDateString() === new Date().toDateString();
+
+        return (
+          <div
+            key={d.date}
+            className="flex-1 group relative flex flex-col items-center justify-end h-full"
+          >
+            <div className="absolute -top-6 hidden group-hover:block bg-gray-900 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap z-10">
+              {dateObj.toLocaleDateString("it-IT", {
+                day: "2-digit",
+                month: "short",
+              })}
+              : {d.count}
+            </div>
+            <div
+              className={`w-full rounded-sm transition-all ${
+                isToday ? "bg-amber-500" : "bg-gray-200 group-hover:bg-gray-400"
+              }`}
+              style={{ height: `${height}%` }}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }
