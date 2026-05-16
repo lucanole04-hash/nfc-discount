@@ -45,8 +45,8 @@ export function PromoCard({ business, campaigns, token }: PromoCardProps) {
   const isExpired =
     business.validUntil && new Date(business.validUntil) < new Date();
   const isActive = business.active && !isExpired;
-  const primaryColor = business.primaryColor || "#f59e0b";
-  const secondaryColor = business.secondaryColor || "#111827";
+  const primary = business.primaryColor || "#f59e0b";
+  const secondary = business.secondaryColor || "#111827";
 
   const activeCampaigns = campaigns?.filter((c) => {
     if (!c.active) return false;
@@ -85,7 +85,7 @@ export function PromoCard({ business, campaigns, token }: PromoCardProps) {
         <div
           className="px-6 py-8 text-center"
           style={{
-            background: `linear-gradient(135deg, ${secondaryColor}, ${secondaryColor}dd)`,
+            background: `linear-gradient(135deg, ${secondary}, ${secondary}dd)`,
           }}
         >
           {business.logo ? (
@@ -97,7 +97,7 @@ export function PromoCard({ business, campaigns, token }: PromoCardProps) {
           ) : (
             <div
               className="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center text-white text-2xl font-bold"
-              style={{ backgroundColor: primaryColor }}
+              style={{ backgroundColor: primary }}
             >
               {business.name.charAt(0)}
             </div>
@@ -112,9 +112,8 @@ export function PromoCard({ business, campaigns, token }: PromoCardProps) {
           )}
           <div className="mt-1 flex items-center justify-center gap-2">
             <span
-              className={`inline-block w-2 h-2 rounded-full ${
-                isActive ? "bg-emerald-400" : "bg-red-400"
-              }`}
+              className="inline-block w-2 h-2 rounded-full"
+              style={{ backgroundColor: isActive ? "#10b981" : "#ef4444" }}
             />
             <span className="text-gray-300 text-xs uppercase tracking-widest">
               {isActive ? "Sconto attivo" : "Sconto non attivo"}
@@ -128,7 +127,7 @@ export function PromoCard({ business, campaigns, token }: PromoCardProps) {
             <>
               <div
                 className="text-7xl font-black tracking-tight"
-                style={{ color: secondaryColor }}
+                style={{ color: secondary }}
               >
                 {business.discount}
                 <span className="text-4xl">%</span>
@@ -157,6 +156,8 @@ export function PromoCard({ business, campaigns, token }: PromoCardProps) {
                 key={campaign.id}
                 campaign={campaign}
                 token={token}
+                primary={primary}
+                secondary={secondary}
               />
             ))}
           </div>
@@ -185,11 +186,11 @@ export function PromoCard({ business, campaigns, token }: PromoCardProps) {
               <div
                 className="rounded-2xl px-4 py-3 text-center border"
                 style={{
-                  backgroundColor: `${primaryColor}10`,
-                  borderColor: `${primaryColor}30`,
+                  backgroundColor: `${primary}10`,
+                  borderColor: `${primary}30`,
                 }}
               >
-                <p style={{ color: `${primaryColor}cc` }} className="text-sm">
+                <p style={{ color: primary }} className="text-sm font-medium">
                   {business.message}
                 </p>
               </div>
@@ -202,7 +203,9 @@ export function PromoCard({ business, campaigns, token }: PromoCardProps) {
             </div>
 
             {/* Mark as Used button */}
-            {token && <MarkUsedButton token={token} />}
+            {token && (
+              <MarkUsedButton token={token} primary={primary} secondary={secondary} />
+            )}
 
             <div className="flex items-center justify-between text-xs text-gray-400 px-1">
               <span>
@@ -226,7 +229,12 @@ export function PromoCard({ business, campaigns, token }: PromoCardProps) {
               {business.phone && (
                 <a
                   href={`tel:${business.phone}`}
-                  className="flex items-center gap-1.5 px-4 py-2.5 bg-gray-50 hover:bg-gray-100 rounded-xl text-sm text-gray-700 font-medium transition"
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition border"
+                  style={{
+                    color: secondary,
+                    borderColor: `${secondary}20`,
+                    backgroundColor: `${secondary}08`,
+                  }}
                 >
                   📞 Chiama
                 </a>
@@ -236,7 +244,12 @@ export function PromoCard({ business, campaigns, token }: PromoCardProps) {
                   href={`https://wa.me/${business.whatsapp.replace(/\D/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 rounded-xl text-sm text-emerald-700 font-medium transition"
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition border"
+                  style={{
+                    color: secondary,
+                    borderColor: `${secondary}20`,
+                    backgroundColor: `${secondary}08`,
+                  }}
                 >
                   💬 WhatsApp
                 </a>
@@ -246,7 +259,12 @@ export function PromoCard({ business, campaigns, token }: PromoCardProps) {
                   href={business.googleMaps}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-50 hover:bg-blue-100 rounded-xl text-sm text-blue-700 font-medium transition"
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition border"
+                  style={{
+                    color: secondary,
+                    borderColor: `${secondary}20`,
+                    backgroundColor: `${secondary}08`,
+                  }}
                 >
                   📍 Mappa
                 </a>
@@ -259,7 +277,12 @@ export function PromoCard({ business, campaigns, token }: PromoCardProps) {
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-4 py-2.5 bg-pink-50 hover:bg-pink-100 rounded-xl text-sm text-pink-700 font-medium transition"
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition border"
+                  style={{
+                    color: secondary,
+                    borderColor: `${secondary}20`,
+                    backgroundColor: `${secondary}08`,
+                  }}
                 >
                   📸 Instagram
                 </a>
@@ -269,7 +292,12 @@ export function PromoCard({ business, campaigns, token }: PromoCardProps) {
                   href={business.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-4 py-2.5 bg-gray-50 hover:bg-gray-100 rounded-xl text-sm text-gray-700 font-medium transition"
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition border"
+                  style={{
+                    color: secondary,
+                    borderColor: `${secondary}20`,
+                    backgroundColor: `${secondary}08`,
+                  }}
                 >
                   🌐 Sito web
                 </a>
@@ -292,9 +320,13 @@ export function PromoCard({ business, campaigns, token }: PromoCardProps) {
 function CampaignCard({
   campaign,
   token,
+  primary,
+  secondary,
 }: {
   campaign: PromoCampaign;
   token?: string;
+  primary: string;
+  secondary: string;
 }) {
   const [copied, setCopied] = useState(false);
   const storageKey = `nfc_used_campaign_${campaign.id}`;
@@ -342,8 +374,8 @@ function CampaignCard({
     <div
       className="rounded-2xl p-4 border"
       style={{
-        backgroundColor: `${campaign.color}08`,
-        borderColor: `${campaign.color}25`,
+        backgroundColor: `${primary}08`,
+        borderColor: `${primary}20`,
       }}
     >
       <div className="flex items-center justify-between">
@@ -359,7 +391,7 @@ function CampaignCard({
         </div>
         <span
           className="text-2xl font-black"
-          style={{ color: campaign.color }}
+          style={{ color: primary }}
         >
           {campaign.discount}%
         </span>
@@ -369,14 +401,14 @@ function CampaignCard({
         <div className="mt-3 flex items-center gap-2">
           <code
             className="flex-1 bg-white/80 text-center py-2 rounded-lg text-sm font-mono font-bold tracking-wider border"
-            style={{ borderColor: `${campaign.color}30` }}
+            style={{ borderColor: `${primary}30`, color: secondary }}
           >
             {campaign.promoCode}
           </code>
           <button
             onClick={copyPromoCode}
-            className="px-3 py-2 rounded-lg text-xs font-medium text-white transition"
-            style={{ backgroundColor: campaign.color }}
+            className="px-3 py-2 rounded-lg text-xs font-medium text-white transition hover:opacity-90"
+            style={{ backgroundColor: primary }}
           >
             {copied ? "✓" : "Copia"}
           </button>
@@ -395,11 +427,13 @@ function CampaignCard({
           onClick={markUsed}
           disabled={used}
           className={`mt-3 w-full py-2 rounded-xl text-xs font-medium transition ${
-            used
-              ? "bg-emerald-100 text-emerald-700 cursor-default"
-              : "text-white hover:opacity-90"
+            used ? "cursor-default" : "text-white hover:opacity-90"
           }`}
-          style={used ? undefined : { backgroundColor: campaign.color }}
+          style={
+            used
+              ? { backgroundColor: `${primary}15`, color: primary }
+              : { backgroundColor: primary }
+          }
         >
           {used ? "✓ Già utilizzato" : "✓ Segna come utilizzato"}
         </button>
@@ -408,7 +442,15 @@ function CampaignCard({
   );
 }
 
-function MarkUsedButton({ token }: { token: string }) {
+function MarkUsedButton({
+  token,
+  primary,
+  secondary,
+}: {
+  token: string;
+  primary: string;
+  secondary: string;
+}) {
   const storageKey = `nfc_used_${token}`;
   const [used, setUsed] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -432,10 +474,13 @@ function MarkUsedButton({ token }: { token: string }) {
       onClick={handleUse}
       disabled={used}
       className={`w-full py-3 rounded-2xl text-sm font-medium transition ${
-        used
-          ? "bg-emerald-100 text-emerald-700 cursor-default"
-          : "bg-gray-900 text-white hover:bg-gray-800"
+        used ? "cursor-default" : "text-white hover:opacity-90"
       }`}
+      style={
+        used
+          ? { backgroundColor: `${primary}15`, color: primary }
+          : { backgroundColor: secondary }
+      }
     >
       {used ? "✓ Già utilizzato" : "Segna come utilizzato"}
     </button>
