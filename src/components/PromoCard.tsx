@@ -297,6 +297,11 @@ function CampaignCard({
   token?: string;
 }) {
   const [copied, setCopied] = useState(false);
+  const storageKey = `nfc_used_campaign_${campaign.id}`;
+  const [used, setUsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem(storageKey) === "true";
+  });
 
   const isExpired =
     campaign.endDate && new Date(campaign.endDate) < new Date();
@@ -309,12 +314,14 @@ function CampaignCard({
   }
 
   async function markUsed() {
-    if (!token) return;
+    if (!token || used) return;
     await fetch(`/api/business/${token}/usage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ campaignId: campaign.id }),
     });
+    localStorage.setItem(storageKey, "true");
+    setUsed(true);
     toast.success("Sconto segnato come utilizzato!");
   }
 
@@ -386,10 +393,15 @@ function CampaignCard({
       {token && (
         <button
           onClick={markUsed}
-          className="mt-3 w-full py-2 rounded-xl text-xs font-medium text-white transition hover:opacity-90"
-          style={{ backgroundColor: campaign.color }}
+          disabled={used}
+          className={`mt-3 w-full py-2 rounded-xl text-xs font-medium transition ${
+            used
+              ? "bg-emerald-100 text-emerald-700 cursor-default"
+              : "text-white hover:opacity-90"
+          }`}
+          style={used ? undefined : { backgroundColor: campaign.color }}
         >
-          ✓ Segna come utilizzato
+          {used ? "✓ Già utilizzato" : "✓ Segna come utilizzato"}
         </button>
       )}
     </div>
@@ -397,14 +409,20 @@ function CampaignCard({
 }
 
 function MarkUsedButton({ token }: { token: string }) {
-  const [used, setUsed] = useState(false);
+  const storageKey = `nfc_used_${token}`;
+  const [used, setUsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem(storageKey) === "true";
+  });
 
   async function handleUse() {
+    if (used) return;
     await fetch(`/api/business/${token}/usage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({}),
     });
+    localStorage.setItem(storageKey, "true");
     setUsed(true);
     toast.success("Sconto segnato come utilizzato!");
   }
@@ -415,11 +433,11 @@ function MarkUsedButton({ token }: { token: string }) {
       disabled={used}
       className={`w-full py-3 rounded-2xl text-sm font-medium transition ${
         used
-          ? "bg-emerald-100 text-emerald-700"
+          ? "bg-emerald-100 text-emerald-700 cursor-default"
           : "bg-gray-900 text-white hover:bg-gray-800"
       }`}
     >
-      {used ? "✓ Utilizzato" : "Segna come utilizzato"}
+      {used ? "✓ Già utilizzato" : "Segna come utilizzato"}
     </button>
   );
 }
