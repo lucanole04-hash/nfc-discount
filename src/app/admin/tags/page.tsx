@@ -9,6 +9,7 @@ import { TableSkeleton } from "@/components/Skeleton";
 
 type NFCTag = {
   id: string;
+  token: string | null;
   label: string;
   active: boolean;
   scans: number;
@@ -105,90 +106,85 @@ export default function TagsPage() {
           }
         />
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="text-left px-4 py-3 font-medium text-gray-500">
-                    ID Tag
-                  </th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-500">
-                    Label
-                  </th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-500">
-                    Stato
-                  </th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-500">
-                    Scansioni
-                  </th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-500 hidden sm:table-cell">
-                    Ultimo utilizzo
-                  </th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-500">
-                    Azioni
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {tags.map((tag) => (
-                  <tr
-                    key={tag.id}
-                    className="border-b border-gray-50 last:border-0"
-                  >
-                    <td className="px-4 py-3 text-gray-600 font-mono text-xs">
-                      {tag.id.slice(0, 8)}...
-                    </td>
-                    <td className="px-4 py-3 text-gray-900 font-medium">
+        <div className="space-y-3">
+          {tags.map((tag) => {
+            const tagUrl = tag.token
+              ? `${typeof window !== "undefined" ? window.location.origin : ""}/t/${tag.token}`
+              : null;
+            return (
+              <div
+                key={tag.id}
+                className="bg-white rounded-2xl border border-gray-200 p-4 space-y-3"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                        tag.active
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "bg-gray-100 text-gray-500"
+                      }`}
+                    >
+                      {tag.active ? "Attivo" : "Disattivo"}
+                    </span>
+                    <span className="text-sm font-semibold text-gray-900">
                       {tag.label}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-                          tag.active
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-gray-100 text-gray-500"
-                        }`}
-                      >
-                        {tag.active ? "Attivo" : "Disattivo"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-gray-900 font-semibold">
-                      {tag.scans}
-                    </td>
-                    <td className="px-4 py-3 text-gray-500 hidden sm:table-cell">
-                      {tag.lastUsed
-                        ? new Date(tag.lastUsed).toLocaleString("it-IT", {
-                            day: "2-digit",
-                            month: "short",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
-                        : "Mai"}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => toggleActive(tag)}
-                          className="p-1.5 text-gray-400 hover:text-gray-600 transition"
-                          title={tag.active ? "Disattiva" : "Attiva"}
-                        >
-                          {tag.active ? "⏸" : "▶️"}
-                        </button>
-                        <button
-                          onClick={() => setDeleteTarget(tag)}
-                          className="p-1.5 text-gray-400 hover:text-red-500 transition"
-                          title="Elimina"
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => toggleActive(tag)}
+                      className="p-1.5 text-gray-400 hover:text-gray-600 transition"
+                      title={tag.active ? "Disattiva" : "Attiva"}
+                    >
+                      {tag.active ? "⏸" : "▶️"}
+                    </button>
+                    <button
+                      onClick={() => setDeleteTarget(tag)}
+                      className="p-1.5 text-gray-400 hover:text-red-500 transition"
+                      title="Elimina"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+
+                {tagUrl && (
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 bg-gray-50 px-3 py-2 rounded-lg text-xs text-gray-600 border border-gray-200 truncate">
+                      {tagUrl}
+                    </code>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(tagUrl);
+                        toast.success("Link copiato!");
+                      }}
+                      className="px-3 py-2 bg-gray-900 text-white rounded-lg text-xs font-medium hover:bg-gray-800 transition shrink-0"
+                    >
+                      Copia
+                    </button>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-4 text-xs text-gray-500">
+                  <span>
+                    Scansioni: <strong className="text-gray-900">{tag.scans}</strong>
+                  </span>
+                  <span>
+                    Ultimo utilizzo:{" "}
+                    {tag.lastUsed
+                      ? new Date(tag.lastUsed).toLocaleString("it-IT", {
+                          day: "2-digit",
+                          month: "short",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "Mai"}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 

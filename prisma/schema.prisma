@@ -86,6 +86,7 @@ model Campaign {
 model NFCTag {
   id         String   @id @default(uuid())
   businessId String
+  token      String?  @unique
   label      String   @default("")
   active     Boolean  @default(true)
   scans      Int      @default(0)

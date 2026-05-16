@@ -39,9 +39,10 @@ type PromoCardProps = {
   business: PromoBusinessData;
   campaigns?: PromoCampaign[];
   token?: string;
+  tagToken?: string;
 };
 
-export function PromoCard({ business, campaigns, token }: PromoCardProps) {
+export function PromoCard({ business, campaigns, token, tagToken }: PromoCardProps) {
   const isExpired =
     business.validUntil && new Date(business.validUntil) < new Date();
   const isActive = business.active && !isExpired;
@@ -204,7 +205,7 @@ export function PromoCard({ business, campaigns, token }: PromoCardProps) {
 
             {/* Mark as Used button */}
             {token && (
-              <MarkUsedButton token={token} primary={primary} secondary={secondary} />
+              <MarkUsedButton token={token} tagToken={tagToken} primary={primary} secondary={secondary} />
             )}
 
             <div className="flex items-center justify-between text-xs text-gray-400 px-1">
@@ -444,14 +445,16 @@ function CampaignCard({
 
 function MarkUsedButton({
   token,
+  tagToken,
   primary,
   secondary,
 }: {
   token: string;
+  tagToken?: string;
   primary: string;
   secondary: string;
 }) {
-  const storageKey = `nfc_used_${token}`;
+  const storageKey = tagToken ? `nfc_used_tag_${tagToken}` : `nfc_used_${token}`;
   const [used, setUsed] = useState(() => {
     if (typeof window === "undefined") return false;
     return localStorage.getItem(storageKey) === "true";
